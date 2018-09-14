@@ -199,6 +199,52 @@ class combined_document {
     }
 
     /**
+     * Check if it's allow to skip from configuration
+     * @return bool
+     * @throws \dml_exception
+     */
+    private function is_skipable(){
+        try{
+            $config = get_config('assignfeedback_editpdf', 'abortorskip');
+            return !empty($config) && $config == '1';
+        }
+        catch (\Exception $exception){
+            return false;
+        }
+    }
+
+    /**
+     * Get compatible-pdf files
+     * @param $file
+     * @param bool $is_skipable
+     * @return bool|string
+     */
+    private function compatible_pdf($file, $is_skipable = false){
+        if ($is_skipable){
+            // Validate if the object is correct type and in completed status
+            if (is_a($file, \core_files\conversion::class)
+                && method_exists($file, 'get')
+                && $file->get('status') == \core_files\conversion::STATUS_COMPLETE) {
+                return pdf::ensure_pdf_compatible($file->get_destfile());
+            }
+            // Validate if the is stored_file object or else we just have to ignore it
+            elseif (is_a($file, \stored_file::class)) {
+                return pdf::ensure_pdf_compatible($file);
+            }
+        }
+        // Original process
+        else{
+            if (is_a($file, \core_files\conversion::class)) {
+                return pdf::ensure_pdf_compatible($file->get_destfile());
+            }else {
+                return pdf::ensure_pdf_compatible($file);
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Combine all source files into a single PDF and store it in the
      * file_storage API using the supplied contextid and itemid.
      *
@@ -210,18 +256,23 @@ class combined_document {
         global $CFG;
 
         $currentstatus = $this->get_status();
-        if ($currentstatus === self::STATUS_FAILED) {
-            $this->store_empty_document($contextid, $itemid);
+        $is_allowtoskip = $this->is_skipable();
 
-            return $this;
-        } else if ($currentstatus !== self::STATUS_READY) {
-            // The document is either:
-            // * already combined; or
-            // * pending input being fully converted; or
-            // * unable to continue due to an issue with the input documents.
-            //
-            // Exit early as we cannot continue.
-            return $this;
+        // If setting is set not to be skip than proceed as usual
+        if (!$is_allowtoskip){
+            if ($currentstatus === self::STATUS_FAILED) {
+                $this->store_empty_document($contextid, $itemid);
+
+                return $this;
+            } else if ($currentstatus !== self::STATUS_READY) {
+                // The document is either:
+                // * already combined; or
+                // * pending input being fully converted; or
+                // * unable to continue due to an issue with the input documents.
+                //
+                // Exit early as we cannot continue.
+                return $this;
+            }
         }
 
         require_once($CFG->libdir . '/pdflib.php');
@@ -234,13 +285,7 @@ class combined_document {
             // Check that each file is compatible and add it to the list.
             // Note: We drop non-compatible files.
             $compatiblepdf = false;
-            if (is_a($file, \core_files\conversion::class)) {
-                $compatiblepdf = pdf::ensure_pdf_compatible($file->get_destfile());
-            } else {
-                $compatiblepdf = pdf::ensure_pdf_compatible($file);
-            }
-
-            if ($compatiblepdf) {
+            if ($compatiblepdf = $this->compatible_pdf($file, $is_allowtoskip)){
                 $compatiblepdfs[] = $compatiblepdf;
             }
         }

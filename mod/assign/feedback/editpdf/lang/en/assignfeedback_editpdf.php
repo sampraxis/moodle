@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['abortorskip'] = 'Abort the non-compatible files';
+$string['abortorskipdesc'] = 'Check to Abort on non-compatible files otherwise only skip them';
 $string['addtoquicklist'] = 'Add to quicklist';
 $string['annotationcolour'] = 'Annotation colour';
 $string['black'] = 'Black';

@@ -47,3 +47,10 @@ $settings->add(new admin_setting_heading('pathtogs', get_string('pathtogs', 'adm
 $url = new moodle_url('/mod/assign/feedback/editpdf/testgs.php');
 $link = html_writer::link($url, get_string('testgs', 'assignfeedback_editpdf'));
 $settings->add(new admin_setting_heading('testgs', '', $link));
+
+// Abort or Skip on non-compatible files setting
+// This will either show blank PDF when abort or will combine the file if other files is allowed
+$name = 'assignfeedback_editpdf/abortorskip';
+$title = get_string('abortorskip','assignfeedback_editpdf');
+$description = get_string('abortorskipdesc', 'assignfeedback_editpdf');
+$settings->add(new admin_setting_configcheckbox($name, $title,  $description, 1));
