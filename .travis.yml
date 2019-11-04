@@ -285,3 +285,12 @@ script:
           exit 1 ;
         fi
       fi
+after_success:
+  - git checkout passed
+  - git pull
+  - git merge $TRAVIS_BRANCH
+  - git push origin passed
+#  - git config --global user.email "smo@praxis.dk"
+#  - git config --global user.name "Sam Møller"
+#  - git remote add origin https://${GITTOKEN}@github.com/sampraxis/moodle.git > /dev/null 2>&1
+#  - git pull origin passed
