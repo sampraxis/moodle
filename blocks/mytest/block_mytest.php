@@ -2,7 +2,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class block_html extends block_base {
+class block_mytest extends block_base {
     public function has_config() {
         return false;
     }
