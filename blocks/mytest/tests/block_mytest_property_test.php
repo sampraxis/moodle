@@ -1,10 +1,18 @@
 <?php
+/**
+ * @package     block_mytest
+ * @developer   Sam Møller
+ * @copyright   2019 Praxis
+ * @companyinfo https://praxis.dk
+ * @since       04-11-2019
+ */
 
 namespace block_mytest;
 
 defined('MOODLE_INTERNAL') || die();
 
-class model_property_testcase extends \advanced_testcase {
+
+class block_mytest_property_test extends \advanced_testcase {
     public function test_have_properties() {
         $actual_title = 'Helle me';
         $actual_message = 'My message';
@@ -26,5 +34,9 @@ class model_property_testcase extends \advanced_testcase {
         catch (\Exception $exception) {
             $this->assertTrue($title === 'failed');
         }
+    }
+
+    public function test_mean_to_fail() {
+        throw new \Exception("This mean to failed...");
     }
 }
