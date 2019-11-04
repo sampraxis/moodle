@@ -13,6 +13,11 @@ defined('MOODLE_INTERNAL') || die();
 
 
 class block_mytest_property_test extends \advanced_testcase {
+
+    public function setUp() {
+        $this->resetAfterTest();
+    }
+
     public function test_have_properties() {
         $actual_title = 'Helle me';
         $actual_message = 'My message';
@@ -37,6 +42,7 @@ class block_mytest_property_test extends \advanced_testcase {
     }
 
     public function test_mean_to_fail() {
-        throw new \Exception("This mean to failed...");
+        $this->assertNotTrue(true);
+        //throw new \Exception("This mean to failed...");
     }
 }
