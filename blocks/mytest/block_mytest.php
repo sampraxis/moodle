@@ -3,6 +3,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 class block_mytest extends block_base {
+    public function init() {
+        $this->title = get_string('pluginname', 'block_mytest');
+    }
+
     public function has_config() {
         return false;
     }
