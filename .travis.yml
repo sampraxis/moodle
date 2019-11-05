@@ -16,24 +16,8 @@ php:
     - 7.2
 
 env:
-    # Although we want to run these jobs and see failures as quickly as possible, we also want to get the slowest job to
-    # start first so that the total run time is not too high.
-    #
-    # We only run MySQL on PHP 7.2, so run that first.
-    # CI Tests should be second-highest in priority as these only take <= 60 seconds to run under normal circumstances.
-    # Postgres is significantly is pretty reasonable in its run-time.
-
-    # Run unit tests on MySQL
+  global:
     - PLUGINDIR=blocks/mytest
-
-    # Run CI Tests without running PHPUnit.
-    #- DB=none     TASK=CITEST
-
-    # Run unit tests on Postgres
-    #- DB=pgsql    TASK=PHPUNIT
-
-    # Perform an upgrade test too.
-    #- DB=pgsql    TASK=UPGRADE
 
 matrix:
     # Enable fast finish.
@@ -47,7 +31,7 @@ cache:
       - $HOME/.npm
 
 install:
-  - >
+  - |
     if [ -n "$GITHUB_APITOKEN" ]; then
       composer config github-oauth.github.com $GITHUB_APITOKEN;
       echo 'auth.json' >> .git/info/exclude
@@ -57,7 +41,7 @@ install:
     travis_retry composer install --prefer-dist --no-interaction;
 
 before_script:
-  - >
+  - |
     phpenv config-rm xdebug.ini
     mkdir -p "$HOME"/roots/phpunit
     sed -i \
@@ -66,7 +50,7 @@ before_script:
       config.php ;
 
 script:
-  - >
+  - |
     # Exit code 1 - Plugin directory was not defined
     if [ -z "$PLUGINDIR" ]; then
       printf "PLUGINDIR must be define in environment!"
@@ -80,7 +64,7 @@ script:
     vendor/bin/phpunit --fail-on-risky --disallow-test-output --verbose "{$PLUGINDIR}/tests";
 
 after_success:
-  - >
+  - |
     printf "Unit testing was successful\n"
 
 #  - git checkout passed
