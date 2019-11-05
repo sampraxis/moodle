@@ -44,10 +44,30 @@ before_script:
   - |
     phpenv config-rm xdebug.ini
     mkdir -p "$HOME"/roots/phpunit
+    cp config-dist.php config.php
+
+    # Travis data source info
+    sed -i \
+      -e "s%= 'moodle'%= 'travis_ci_test'%" \
+      -e "s%= 'password'%= ''%" \
+      config.php;
+    sed -i \
+      -e "s%= 'pgsql'%= 'mysqli'%" \
+      -e "s%= 'username'%= 'travis'%" \
+      -e "s%=> 'utf8mb4_unicode_ci'%=> 'utf8mb4_bin'%" \
+      config.php;
+
+    # The wwwroot and dataroot.
+    sed -i \
+      -e "s%http://example.com/moodle%https://localhost%" \
+      -e "s%/home/example/moodledata%/home/travis/roots/base%" \
+      config.php;
+
+    # PHPUnit config info
     sed -i \
       -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
       -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
-      config.php ;
+      config.php;
 
 script:
   - |
